@@ -25,7 +25,8 @@ class JobCard extends React.Component {
       customerToken: null,
       customerExpoToken: null,
       dataJobcard : [],
-      totalAmount : null
+      totalAmount : null,
+      serviceCharge : 0
     }
   }
   
@@ -80,13 +81,17 @@ class JobCard extends React.Component {
  */
 
 showJobcard = () => {
-const URL = "https://dev.driveza.space/v1/users/job-card?token=" + this.state.customerToken + "&bookingId=" + this.state.bookingId;
+const URL = "https://api.devduck.xyz/v1/users/job-card?token=" + this.state.customerToken + "&bookingId=" + this.state.bookingId;
+console.log(URL)
 axios.get(URL).then((response) => {
   this.setState({
     dataJobcard : response.data.data,
-    totalAmount : response.data.total
+    totalAmount : response.data.total,
+    serviceCharge : response.data.serviceCharge
   }, () => {
 alert(JSON.stringify(this.state.dataJobcard))
+// console.log(response)
+this.applyDiscountTwenty();
   });
 }).catch((response) => {
   alert('In Catch' + (response))
@@ -129,7 +134,7 @@ transactionStatus = (status) => {
 
 // To Update the Status Value
 updateStatusPayment= (statusCode) => {
-  axios.post("https://dev.driveza.space/v1/users/update-booking-status",{
+  axios.post("https://api.devduck.xyz/v1/users/update-booking-status",{
       token: this.state.customerToken,
       bookingId: this.state.bookingId,
       statusId: statusCode
@@ -172,12 +177,22 @@ transactionStatusCheck = () => {
 // Payment Checkout
 checkout = () => {
   // alert(this.state.bookingId);
-  this.getOrderId();
-} 
+  // this.getOrderId();
+  const payAsCash = this.props.navigation.getParam('updateByCash');
+  payAsCash();
+  this.props.navigation.goBack(null);
+  ///
+}
+
+// Promo Screen Navigation
+navigateToPromo =  () => {
+  this.props.navigation.navigate('SelectPromoScreen', {bookingId: this.state.bookingId, applyFlatHundred: this.applyFlatHundred,
+  applyDiscountFifteen: this.applyDiscountFifteen, applyDiscountTwenty: this.applyDiscountTwenty})
+}
 
 // To get the Order ID for the Transaction
 getOrderId = () => {
-const URL = 'https://dev.driveza.space/v1/users/init-payment?token=' + this.state.customerToken + '&bookingId=' + this.state.bookingId
+const URL = 'https://api.devduck.xyz/v1/users/init-payment?token=' + this.state.customerToken + '&bookingId=' + this.state.bookingId
   axios.get(URL).then((response) => {
     // alert(response.data.orderId)    
     this.setState({
@@ -194,6 +209,58 @@ openPaytmPage = () => {
   this.setState({
     modalVisible: true
   })
+}
+
+/*
+* To apply the Discount : FLAT100
+* Takes the Total Services Amount, and apply the discount. 
+*/ 
+applyFlatHundred = () => {
+  let totalAmountWithoutServiceCharge = this.state.totalAmount;
+  let serviceCharge = this.state.serviceCharge;
+  // Condition to be Adapted by a Flag, which suggests if the user is applying the discount for the First Time
+  // Amount Range is temporary for Now, To be applied when Amount > 500
+  if(totalAmountWithoutServiceCharge >= 150 && totalAmountWithoutServiceCharge <= 500){
+     let totalAmountAfterDiscount = (totalAmountWithoutServiceCharge - 100) +  serviceCharge;
+     alert(totalAmountAfterDiscount)
+  }
+}
+
+/*
+* To apply the Discount : FLAT150
+* Takes the Total Services Amount, and apply 15% discount. 
+*/ 
+applyDiscountFifteen = () => {
+  let totalAmountWithoutServiceCharge = this.state.totalAmount;
+  let serviceCharge = this.state.serviceCharge;
+  let totalAmountAfterDiscount = 0;
+  if(totalAmountWithoutServiceCharge > 500 && totalAmountWithoutServiceCharge < 1000){
+     let amountWithFifteen = totalAmountWithoutServiceCharge * 0.15;
+     if(amountWithFifteen >= 200){
+      totalAmountAfterDiscount = (totalAmountWithoutServiceCharge - 200) + serviceCharge;
+     } else {
+      totalAmountAfterDiscount = (totalAmountWithoutServiceCharge * 0.85) + serviceCharge;
+     }
+     alert(totalAmountAfterDiscount)
+  }
+}
+/*
+* To apply the Discount : FLAT200
+* Takes the Total Services Amount, and apply 20% discount. 
+*/ 
+applyDiscountTwenty = () => {
+  let totalAmountWithoutServiceCharge = this.state.totalAmount;
+  let serviceCharge = this.state.serviceCharge;
+  let totalAmountAfterDiscount = 0; 
+  if(totalAmountWithoutServiceCharge >= 1000 && totalAmountWithoutServiceCharge < 2000){
+     let amountWithFifteen = totalAmountWithoutServiceCharge * 0.20;
+     if(amountWithFifteen >= 300){
+      totalAmountAfterDiscount = (totalAmountWithoutServiceCharge - 300) + serviceCharge;
+     } else {
+      totalAmountAfterDiscount = (totalAmountWithoutServiceCharge * 0.80) + serviceCharge;
+     }
+     alert(totalAmountAfterDiscount)
+  }
 }
 
   render() {
@@ -216,9 +283,13 @@ openPaytmPage = () => {
         })
       }
       <View style={{width:"100%",flexDirection:'row',padding:20}}>
+              <View style={{width:"50%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:17,fontFamily:'OpenSansSemiBold'}}>Service Charges : </Text></View>
+              <View style={{width:"25%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:17,fontFamily:'OpenSansSemiBold'}}>{this.state.serviceCharge}</Text></View>
+      </View>
+      <View style={{width:"100%",flexDirection:'row',padding:20}}>
               <View style={{width:"50%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:17,fontFamily:'OpenSansSemiBold'}}>Total Amount</Text></View>
               <View style={{width:"25%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:15,fontFamily:'OpenSans'}}>:</Text></View>
-              <View style={{width:"25%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:17,fontFamily:'OpenSansSemiBold'}}>Rs {this.state.totalAmount}</Text></View>
+              <View style={{width:"25%",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:17,fontFamily:'OpenSansSemiBold'}}>Rs {this.state.totalAmount + this.state.serviceCharge}</Text></View>
       </View>
       <View style={{alignItems: 'center',justifyContent: 'center',marginTop: 10}}>
           <TouchableOpacity onPress={() => {
@@ -227,6 +298,17 @@ openPaytmPage = () => {
           <View style={{padding: 15,marginBottom:10,alignItems: 'center',borderRadius: 5,backgroundColor: '#015b63'}}>
               <Text style={{backgroundColor: 'transparent',fontSize:15,color: '#fff',width: 200,height: 20,textAlign: 'center'}}>
               Pay For Services
+              </Text>
+          </View>
+          </TouchableOpacity>
+      </View>
+      <View style={{alignItems: 'center',justifyContent: 'center',marginTop: 10}}>
+          <TouchableOpacity onPress={() => {
+						this.navigateToPromo();
+					}}>
+          <View style={{padding: 15,marginBottom:10,alignItems: 'center',borderRadius: 5,backgroundColor: '#015b63'}}>
+              <Text style={{backgroundColor: 'transparent',fontSize:15,color: '#fff',width: 200,height: 20,textAlign: 'center'}}>
+              Apply Promo
               </Text>
           </View>
           </TouchableOpacity>

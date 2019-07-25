@@ -29,7 +29,8 @@ class ServiceBook extends React.Component {
 			},
 			merchantList:[],
 			loader: false,
-			customerToken:''
+			customerToken:"",
+			expoToken : props.MerchantInfo.MerchantInformation[5]
 	  	}
 	}
 
@@ -47,7 +48,7 @@ class ServiceBook extends React.Component {
 			serviceId : this.props.CarServiceSelected.selectedServices,
 			shopId : this.props.MerchantInfo.MerchantInformation[2],
 			partnerId : this.props.MerchantInfo.MerchantInformation[3],
-			vehicle : this.props.VehicleSelected.selectedVehicle,
+			vehicle : this.props.VehicleSelected.selectedVehicle.id,
 			lat : `${this.props.LocationSelected.latitude}`,
 			long : `${this.props.LocationSelected.longitude}`,
 			time : `${this.dateFormat()}`,
@@ -56,9 +57,8 @@ class ServiceBook extends React.Component {
 		}
 
 		axios.post('http://dev.driveza.space/v1/users/create-booking',bookingData).then(res => {
-			alert(JSON.stringify(res));
-			// this.callFunction("0[UmxFXKFMVzXrOsKqlg8_4v]");
-			this.callFunction("0[nbbXymBor7CrAOjkh6E-5s]");
+			// alert(JSON.stringify(res));
+			this.callFunction(this.props.MerchantInfo.MerchantInformation[5]);
 			this.setModalVisible(false);
 			this.props.navigation.navigate("NewStatusBarScreen",{
 				bookingId: res.data.id,
@@ -66,7 +66,7 @@ class ServiceBook extends React.Component {
 				singleComponentFlag : true
 			});
 		}).catch(error => {
-			alert("Something Went Wrong");
+			// alert("Something Went Wrong"); 
 		}) 
 	}
 	callFunction = (token) => {
@@ -77,16 +77,21 @@ class ServiceBook extends React.Component {
 		data : {
 			"newBooking": true
 		}
-		}  
-		sendPushNotification(notificationObject.token, notificationObject.title, notificationObject.body, notificationObject.data);
+		}
+		sendPushNotification(notificationObject);
 	}
-	componentWillReceiveProps(){
-		this.setState({
-			loader: false
-		},() => {
-			this.partnerListFetch();
-		})
-		
+	componentDidUpdate(nextProps){
+        if(this.props.LoginCheck.flagValue !== nextProps.LoginCheck.flagValue) {
+			AsyncStorage.getItem("customerToken").then((token)=>{
+				if(token) {
+				 this.setState({
+					customerToken : token
+				 },()=>{
+					this.partnerListFetch();
+				 })
+				}
+			  })
+		}
     }
    componentWillMount(){
 	AsyncStorage.getItem("customerToken").then((token)=>{
@@ -100,7 +105,7 @@ class ServiceBook extends React.Component {
 	  })
    }
 	partnerListFetch=()=>{
-		axios.get('https://dev.driveza.space/v1/partners/list',{
+		axios.get('https://api.devduck.xyz/v1/partners/list',{
 			params: {
 				token:`${this.state.customerToken}`,
 				servicesList : `${this.props.CarServiceSelected.selectedServices}`,
@@ -113,16 +118,21 @@ class ServiceBook extends React.Component {
 				merchantList: res.data,
 				loader: true
 			},()=>{
-				alert(JSON.stringify(this.state.merchantList))
+				alert(JSON.stringify(this.state.merchantList)) 
 				console.log(JSON.stringify(this.state.merchantList))
 			})
 		}).catch(error => {
-			alert("Something went wrong");
+			// alert("Something went wrong");
 			this.setState({
 				loader: true
 			})
 		})
 	}
+
+	onPressLogin = () => {
+		this.props.navigation.navigate('PhoneNumberScreen');
+	}
+
   	static navigationOptions = ({ navigation }) => ({
     	headerTintColor: '#fff',
     	headerStyle: {
@@ -139,7 +149,6 @@ class ServiceBook extends React.Component {
 			                    fontSize: 20,
 			                    color: '#ffffff',
 			                    fontWeight: 'bold',
-			                   
 			                    justifyContent: 'center',
 			                    alignItems: 'center',
 			            }}>Service Centers Near You  </Text>
@@ -177,14 +186,14 @@ class ServiceBook extends React.Component {
 	}
 	
 	merchantSelect=(data)=>{
-		let merchantInfoArray=[data.name,data.address,data.id,data.partnerId,data.isPickupAvailable,data.customerToken];
+		let merchantInfoArray=[data.name,data.address,data.id,data.partnerId,data.isPickupAvailable,data.pushToken];
 		this.props.merchantInfoAction(merchantInfoArray)
-		if(!this.props.LoginCheck.flagValue){
-			alert("Please login first")
-			this.props.navigation.navigate('PhoneNumberScreen')
-		} else {
+		// if(!this.props.LoginCheck.flagValue){
+		// 	alert("Please login first")
+		// 	this.props.navigation.navigate('PhoneNumberScreen')
+		// } else {
 		 	this.setModalVisible(true);
-		}
+		// }
 	 }
   	render() {
     	return (
@@ -251,11 +260,11 @@ class ServiceBook extends React.Component {
 				  				<Icon
 									Icon size={15} 
 									name="calendar"  
-									color="#0000000"
+									color="#000000"
 				   				/>
 					<View style={{paddingLeft:10}}><Text style={{fontSize:15,color:"green"}}>SCHEDULED DATE</Text></View>        
 							</View>
-							<View style={{padding:10,paddingLeft:26}}><Text style={{fontSize:15,color:"000000"}}> {this.dateDisplay()}</Text></View>        
+							<View style={{padding:10,paddingLeft:26}}><Text style={{fontSize:15,color:"#000000"}}> {this.dateDisplay()}</Text></View>        
 
 			      
 						</View>
@@ -281,12 +290,11 @@ class ServiceBook extends React.Component {
 				  				<Icon
 									Icon size={15} 
 									name="car"  
-									
 									color="#000000"
 				   				/>
 					<View style={{paddingLeft:10}}><Text style={{fontSize:15,color:"green"}}>VEHICLE CHOSEN</Text></View>        
 							</View>
-							<View style={{padding:10,paddingLeft:26}}><Text style={{fontSize:15,color:"#000000"}}> {cars[parseInt(this.props.VehicleSelected.selectedVehicle)-1].name}</Text></View>        
+							<View style={{padding:10,paddingLeft:26}}><Text style={{fontSize:15,color:"#000000"}}> {this.props.VehicleSelected.selectedVehicle.name}</Text></View>        
 
 			      
 						</View>
@@ -345,10 +353,10 @@ class ServiceBook extends React.Component {
 </View>
 </View>
 					    {
-							this.props.CarServiceSelected.selectedServices.map((index,id) =>{
+							this.props.CarServiceSelected.selectedServices.map((item,index) =>{
 								return(
-									<View style={{padding:20,flexDirection:"row"}} key={id}>
-										<View style={{alignItems:"flex-start",width:"70%"}}><Text>{dataList[index-1].name}</Text></View>
+									<View style={{padding:20,flexDirection:"row"}} key={index}>
+										<View style={{alignItems:"flex-start",width:"70%"}}><Text>{dataList[item-1].name}</Text></View>
 										<View style={{alignItems:"flex-end",width:"30%"}}>
 											<Icon
 												size={15}
@@ -455,13 +463,42 @@ class ServiceBook extends React.Component {
 							</ScrollView>
 			  			</Modal>
 						 {
-							!this.state.loader? ( <View style={{marginTop:200}}><ActivityIndicator color="#015b63" /></View>):
+							!this.state.loader? this.props.LoginCheck.flagValue ?
+							( <View style={{marginTop:200}}><ActivityIndicator/></View>):(
+								<View style={{height: 500,flex:1,alignItems: "center",justifyContent:"center"}}>
+
+									<TouchableOpacity
+									onPress={this.onPressLogin
+									}>
+									<View
+										style={{
+										padding: 15,
+										marginBottom:10,
+										alignItems: 'center',
+										borderRadius: 5,
+										backgroundColor: '#015b63',
+										}}>
+										<Text
+										style={{
+											backgroundColor: 'transparent',
+											fontSize: 15,
+											color: '#fff',
+											width: 200,
+											height: 20,
+											textAlign: 'center',
+										}}>
+										Please Login first
+										</Text>
+									</View>
+									</TouchableOpacity>
+								</View>
+							):
 							<React.Fragment>
 								{
 							 this.state.merchantList.length==0?(<View style={{marginTop:200,alignItems:"center"}}><Text>No merchants found</Text></View>):this.state.merchantList.map((data,index)=>{
 								  return(  		  
-					<TouchableOpacity onPress={() => this.merchantSelect(data)}>
-			  			<View style={{backgroundColor:"#efefef",width:"100%",paddingLeft:20,paddingTop:20,paddingRight:20,paddingBottom:20}}>
+					<TouchableOpacity onPress={() => this.merchantSelect(data)} key={index}>
+			  			<View key={index} style={{backgroundColor:"#efefef",width:"100%",paddingLeft:20,paddingTop:20,paddingRight:20,paddingBottom:20}}>
 							<View style={{backgroundColor:"#ffffff",borderRadius:8}}>
 							<View style={{flexDirection: "row",marginTop:10}}>
 							<View style={{alignItems:"flex-start",width:"50%",paddingLeft:10}}>
@@ -472,7 +509,7 @@ class ServiceBook extends React.Component {
 							</View>
 			   			</View>
 			   			<View style={{marginTop:10,paddingLeft:10,paddingRight:10}}>
-			   				<Text style={{fontSize:15,color:"#8d8d8d"}}>Kaspate vasti</Text>
+			   				<Text style={{fontSize:15,color:"#8d8d8d"}}>{data.address}</Text>
 			   			</View>
 			   			<View style={{flexDirection: "row",marginTop:10,paddingLeft:10}}>
 			   			<View style={{width:"80%",justifyContent:"center"}}><TouchableOpacity style={styles.buttonStyle}>

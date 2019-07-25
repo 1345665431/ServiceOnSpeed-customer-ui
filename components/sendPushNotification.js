@@ -15,8 +15,8 @@ const sendPushNotification = ({token,title,body,data}) => {
         "body": body,
         "data": data
       }
-    }).then(() => { 
-    }).catch(() => {
+    }).then((res) => {
+    }).catch((error) => {
     })
 }
 

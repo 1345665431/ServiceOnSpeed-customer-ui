@@ -5,9 +5,10 @@ import { createStackNavigator } from 'react-navigation';
 
 //components
 import Booking from '../components/Booking';
-import StatusBar from '../components/StatusBar';
+// import StatusBar from '../components/StatusBar';
 import NewStatusBar from '../components/NewStatusBar';
-import JobCard from '../components/JobCard'
+import JobCard from '../components/JobCard';
+import SelectPromo from '../components/SelectPromo';
 
 export default BookingNavigator = createStackNavigator({
     BookingScreen : {
@@ -40,7 +41,8 @@ export default BookingNavigator = createStackNavigator({
            
         })
     },
-    StatusBarTracker: StatusBar,
+    // StatusBarTracker: StatusBar,
     NewStatusBarScreen :NewStatusBar,
-    JobCardScreen : JobCard
+    JobCardScreen : JobCard,
+    SelectPromoScreen : SelectPromo
 })

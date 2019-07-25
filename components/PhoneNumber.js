@@ -46,7 +46,7 @@ class PhoneNumber extends React.Component {
         }
 
         //ajax call for phone number check needed
-        axios.post('https://dev.driveza.space/v1/users/otp',{phone:this.state.phoneNumber})
+        axios.post('https://api.devduck.xyz/v1/users/otp',{phone:this.state.phoneNumber})
             .then((res) => {
                 alert(res.data.otp);
                 this.props.navigation.navigate('OtpLoginScreen',{phone:this.state.phoneNumber});

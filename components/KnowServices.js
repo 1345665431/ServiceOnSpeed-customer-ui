@@ -65,7 +65,7 @@ class KnowServices extends Component {
            fontSize:13,
            padding:20,
            fontFamily:"OpenSansItalic"
-         }}>"When you want to take control of your life and make the most of everything around you…"
+         }}>"Either be a Part of it or Watch it Happen...."
          </Text>
          </View>
          <View style={{backgroundColor:"#ffffff",padding:10}}>

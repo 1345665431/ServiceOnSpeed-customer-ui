@@ -8,7 +8,7 @@ import {getPushNotificationData} from '../constants/constant';
 
 const linesHeight = 100;
 export default class StatusBar extends Component {
-    constructor(props) {
+    constructor(props) {  
         super(props);
         this.state={
             counter:0,
@@ -68,7 +68,7 @@ export default class StatusBar extends Component {
     }
 
     getBookingStatus=()=> {
-        const URL = 'https://dev.driveza.space/v1/users/booking-status?token='
+        const URL = 'https://api.devduck.xyz/v1/users/booking-status?token='
         +this.state.customerToken+'&bookingId='+this.state.bookingId
         axios.get(URL).then((response) => {
             this.setState({
@@ -187,7 +187,7 @@ export default class StatusBar extends Component {
         ]).start();
     }
     pickupRequest=(statusCode)=>{
-        axios.post("https://dev.driveza.space/v1/users/update-booking-status",{
+        axios.post("https://api.devduck.xyz/v1/users/update-booking-status",{
             token: this.state.customerToken,
             bookingId: this.state.bookingId,
             statusId: statusCode

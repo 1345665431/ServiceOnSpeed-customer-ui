@@ -11,7 +11,7 @@ export default class Fitment extends Component {
   render() {
     return (
       <View>
-        <Text>Accessories and fitment</Text>
+        <Text>Accessories and Fitment</Text>
       </View>
     )
   }

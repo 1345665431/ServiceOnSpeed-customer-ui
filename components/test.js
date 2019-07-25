@@ -3,15 +3,10 @@ import { View, ScrollView, Image, StyleSheet, Dimensions, Text, Animated, Toucha
 import { Icon} from 'react-native-elements';
 const { width } = Dimensions.get('window');
 export default class Test extends Component {
-//   static navigationOptions = ({ navigation }) => ({
-//     drawerIcon : ({tintColor}) => (
-//       <Icon size={15} name="bell"  type="font-awesome" color={tintColor} />
-//     )
-// });
   render() {
     return (
       <View>
-        <Text>GS</Text>
+        <Text>Used for Drawer Navigation Options : Refer & Earn, Support, About </Text>
       </View>
     )
   }

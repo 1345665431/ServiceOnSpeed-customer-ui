@@ -4,19 +4,11 @@ const { width } = Dimensions.get('window');
 
 
 export default class MinorFix extends Component {
-  // static navigationOptions = ({ navigation }) => ({
-//     drawerIcon : ({tintColor}) => (
-//       <Icon size={15} name="bell"  type="font-awesome" color={tintColor} />
-//     )
-// });
   render() {
     return (
       <ScrollView style={{backgroundColor:"#e8e8e8"}}>
         <View style={{flex: 1}}>
-       
-       
         <View style={{flex: 1,marginTop:30,padding:10,flexDirection:"column",backgroundColor:"#ffffff",
-            
              borderColor:"#e8e8e8",borderWidth:2}}>
 <View style={{flex: 1,paddingLeft:10}}>
 <Text style={{fontSize:20,color: "#000000",fontFamily:'OpenSansSemiBold'}}>
@@ -42,17 +34,6 @@ export default class MinorFix extends Component {
                5. Another Alternative Transport
 </Text> 
 </View>
-
-              
-
-
-
-
-
-
-
-
-
 </View>
 <View style={{flex: 1,height:50,backgroundColor:"#015b63",padding:10,marginTop:10}}>
         <Text style={{fontSize: 17,color: "#ffffff",}}>

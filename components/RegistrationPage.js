@@ -83,16 +83,18 @@ class RegistrationPage extends React.Component {
 
         alert(JSON.stringify(usersCreateObject));
 
-        axios.post('https://dev.driveza.space/v1/users/create',usersCreateObject)
+        axios.post('https://api.devduck.xyz/v1/users/create',usersCreateObject)
         .then(res => {
             AsyncStorage.setItem("customerToken", res.data.token);
             AsyncStorage.setItem("customerName", res.data.name);
             AsyncStorage.setItem("customerEmail", res.data.email);
             AsyncStorage.setItem("customerPhone", res.data.phone);
-            this.props.loginCheckAction(true);
-            if(this.props.CarServiceSelected.selectedServices.length) { 
+            // this.props.loginCheckAction(true);
+            if(this.props.CarServiceSelected.selectedServices.length) {
+                this.props.navigation.popToTop();
                 this.props.navigation.navigate('ServiceBookScreen');
             } else {
+                this.props.navigation.popToTop();
                 this.props.navigation.navigate('WelcomePageScreen');
             }
         }).catch(error => {
